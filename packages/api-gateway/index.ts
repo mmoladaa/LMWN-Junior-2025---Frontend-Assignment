@@ -1,11 +1,8 @@
 import express, { Application } from "express";
 import axios from "axios";
+import app from "./src/app";
 
-const app: Application = express();
 const port = 3001;
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // app.get("/", (req, res) => res.send("LINE MAN Wongnai Frontend Assignment"));
 
@@ -59,5 +56,5 @@ try {
     console.log(`Connected successfully on port ${port}`);
   });
 } catch (error) {
-  console.error(`Error occured: ${(error as Error).message}`);
+  console.error(`Error occurred: ${(error as Error).message}`);
 }
