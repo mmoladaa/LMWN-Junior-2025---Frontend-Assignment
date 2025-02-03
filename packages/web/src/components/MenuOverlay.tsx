@@ -70,7 +70,7 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
 
       {/* Card */}
       <div
-        className={`fixed inset-x-0 bottom-0 h-[70vh] z-50 bg-white rounded-t-2xl transform transition-transform duration-300 ease-out ${
+        className={`fixed inset-x-0 bottom-0 max-w-2xl mx-auto max-h-[90vh] z-50 bg-white rounded-t-2xl transform transition-transform duration-300 ease-out ${
           isVisible ? "translate-y-0" : "translate-y-full"
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -85,18 +85,24 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
         </button>
 
         {/* Content */}
-        <div className="p-4 h-full overflow-y-auto">
+        <div className="h-full overflow-y-auto pb-20">
           {loading ? (
-            <div className="text-center">กำลังโหลด...</div>
+            <div className="px-8 pt-20 flex justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-gray-500"></div>
+            </div>
           ) : menu === null ? (
-            <div className="text-center">ไม่พบข้อมูลเมนู</div>
+            <div className="px-8 pt-20 text-center text-gray-500">
+              ไม่พบข้อมูลเมนู
+            </div>
           ) : (
             <div>
-              <h2 className="text-2xl font-bold mb-4">{menu.name}</h2>
+              <h2 className="text-2xl font-bold mt-4 mb-4 text-center">
+                {menu.name}
+              </h2>
               <img
                 src={menu.largeImage}
                 alt={menu.name}
-                className="w-full h-48 object-cover rounded-lg mb-4"
+                className="w-full h-56 md:h-72 object-cover"
               />
               <p className="text-gray-600 mb-2">ราคา: {menu.fullPrice} บาท</p>
               {menu.options?.map((option, optionIndex) => (
@@ -114,6 +120,9 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
             </div>
           )}
         </div>
+
+        {/* Footer */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-white"></div>
       </div>
     </div>
   );
