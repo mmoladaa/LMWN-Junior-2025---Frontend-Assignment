@@ -7,3 +7,10 @@ export const getRestaurant = async (id: string): Promise<Restaurant> => {
   const response = await axios.get(`${API_URL}/restaurants/${id}`);
   return response.data;
 };
+
+export const getShortMenu = async (restaurantId: string, menuName: string) => {
+  const response = await axios.get(
+    `${API_URL}/restaurants/${restaurantId}/menus/${menuName}/short`
+  );
+  return response.data;
+};
