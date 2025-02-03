@@ -1,27 +1,31 @@
 import axios from "axios";
-import { Restaurant, Menu } from "./types";
-
-const API_URL = "http://localhost:3001/api";
-
-const axiosInstance = axios.create({
-  timeout: 10000, // 10 seconds
-});
+import { ShortMenu, Restaurant } from "./types";
 
 export const getRestaurant = async (
   restaurantId: string
 ): Promise<Restaurant> => {
-  const response = await axiosInstance.get(
-    `${API_URL}/restaurants/${restaurantId}`
-  );
-  return response.data;
+  try {
+    const response = await axios.get(
+      `http://localhost:3001/api/restaurants/${restaurantId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Restaurant API error:", error);
+    throw error;
+  }
 };
 
 export const getShortMenu = async (
   restaurantId: string,
   menuName: string
-): Promise<Menu[]> => {
-  const response = await axiosInstance.get(
-    `${API_URL}/restaurants/${restaurantId}/menus/${menuName}/short`
-  );
-  return response.data;
+): Promise<ShortMenu[]> => {
+  try {
+    const response = await axios.get(
+      `http://localhost:3001/api/restaurants/${restaurantId}/menus/${menuName}/short`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Menu API error:", error);
+    throw error;
+  }
 };
