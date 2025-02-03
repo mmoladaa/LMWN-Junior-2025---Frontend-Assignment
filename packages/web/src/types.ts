@@ -19,6 +19,26 @@ export interface ShortMenu {
   totalInStock: number;
 }
 
+export interface MenuCardProps {
+  thumbnailImage?: string;
+  name: string;
+  sold: number;
+  fullPrice: number;
+  totalInStock: number;
+}
+
+export interface MenuOverlayProps {
+  isOpen: boolean;
+  onClose: () => void;
+  menu: {
+    thumbnailImage?: string;
+    name: string;
+    sold: number;
+    fullPrice: number;
+    totalInStock: number;
+  };
+}
+
 export interface FullMenu {
   name: string;
   id: string;
