@@ -6,7 +6,6 @@ interface MenuCardProps {
   sold: number;
   fullPrice: number;
   totalInStock: number;
-  onClick?: () => void;
 }
 
 const MenuCard = ({
@@ -15,10 +14,21 @@ const MenuCard = ({
   sold,
   fullPrice,
   totalInStock,
-  onClick,
 }: MenuCardProps) => {
+  const handleClick = () => {
+    console.log("Clicked menu:", {
+      name,
+      fullPrice,
+      sold,
+      totalInStock,
+    });
+  };
+
   return (
-    <div className="flex items-center p-2 bg-white" onClick={onClick}>
+    <div
+      className="flex items-center p-2 bg-white cursor-pointer hover:bg-gray-50"
+      onClick={handleClick}
+    >
       {thumbnailImage && (
         <img
           src={thumbnailImage}

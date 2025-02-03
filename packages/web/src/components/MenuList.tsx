@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MenuCard from "./MenuCard";
+import MenuCardSkeleton from "./MenuCardSkeleton";
 import { getShortMenu } from "../api";
 import { ShortMenu } from "../types";
 
@@ -8,9 +9,12 @@ interface MenuListProps {
   menus: string[];
 }
 
+const BATCH_SIZE = 5; // จำนวนเมนูที่จะโหลดในแต่ละครั้ง
+
 const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
   const [shortMenus, setShortMenus] = useState<(ShortMenu | null)[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadedCount, setLoadedCount] = useState(0);
 
   useEffect(() => {
     const loadMenus = async () => {
@@ -20,22 +24,40 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
           null
         );
 
-        // โหลดข้อมูลทีละเมนู และเก็บไว้ในตำแหน่งเดียวกับ menus array
-        for (let i = 0; i < menus.length; i++) {
+        // โหลด 5 เมนูแรก
+        const initialBatch = menus.slice(0, BATCH_SIZE);
+        for (let i = 0; i < initialBatch.length; i++) {
           try {
-            const menuData = await getShortMenu(restaurantId, menus[i]);
+            const menuData = await getShortMenu(restaurantId, initialBatch[i]);
             loadedMenus[i] = menuData;
+            setShortMenus([...loadedMenus]);
+            setLoadedCount(i + 1);
           } catch (error) {
-            console.error(`Failed to load menu ${menus[i]}:`, error);
+            console.error(`Failed to load menu ${initialBatch[i]}:`, error);
             loadedMenus[i] = null;
           }
         }
 
-        setShortMenus(loadedMenus);
+        setLoading(false);
+
+        // โหลดเมนูที่เหลือ
+        const remainingMenus = menus.slice(BATCH_SIZE);
+        for (let i = 0; i < remainingMenus.length; i++) {
+          try {
+            const menuData = await getShortMenu(
+              restaurantId,
+              remainingMenus[i]
+            );
+            loadedMenus[i + BATCH_SIZE] = menuData;
+            setShortMenus([...loadedMenus]);
+            setLoadedCount(i + BATCH_SIZE + 1);
+          } catch (error) {
+            console.error(`Failed to load menu ${remainingMenus[i]}:`, error);
+            loadedMenus[i + BATCH_SIZE] = null;
+          }
+        }
       } catch (error) {
         console.error("Failed to load menus:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -46,8 +68,16 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
     }
   }, [restaurantId, menus]);
 
-  if (loading) {
-    return <div className="p-4 text-center">กำลังโหลดเมนู...</div>;
+  if (loading && loadedCount === 0) {
+    return (
+      <div className="max-w-2xl mx-auto p-4">
+        <div className="space-y-2">
+          {[...Array(5)].map((_, index) => (
+            <MenuCardSkeleton key={index} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (shortMenus.every((menu) => menu === null)) {
@@ -59,9 +89,15 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
       <div className="space-y-2">
         {menus.map((menuName, index) => {
           const menuData = shortMenus[index];
+
+          // ถ้ายังไม่มีข้อมูลและเลยจำนวนที่โหลดมาแล้ว แสดง skeleton
+          if (!menuData && index >= loadedCount) {
+            return <MenuCardSkeleton key={`skeleton-${index}`} />;
+          }
+
           return (
             <MenuCard
-              key={`${index}-${menuName}`} // ใช้ทั้ง index และ menuName เป็น key
+              key={`${index}-${menuName}`}
               thumbnailImage={menuData?.thumbnailImage}
               name={menuData?.name || menuName}
               fullPrice={menuData?.fullPrice || 0}
