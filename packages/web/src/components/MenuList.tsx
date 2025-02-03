@@ -98,6 +98,7 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
           return (
             <MenuCard
               key={`${index}-${menuName}`}
+              restaurantId={restaurantId}
               thumbnailImage={menuData?.thumbnailImage}
               name={menuData?.name || menuName}
               fullPrice={menuData?.fullPrice || 0}

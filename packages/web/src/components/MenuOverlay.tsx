@@ -1,9 +1,43 @@
 import React, { useEffect, useState } from "react";
-import { MenuOverlayProps } from "../types";
+import { FullMenu, getFullMenu } from "../api";
+import ChevronDownIcon from "../assets/icons/chevron-down-solid.svg";
 
-const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, menu }) => {
+export interface MenuOverlayProps {
+  isOpen: boolean;
+  onClose: () => void;
+  restaurantId: string;
+  menuName: string[];
+}
+
+const MenuOverlay: React.FC<MenuOverlayProps> = ({
+  isOpen,
+  onClose,
+  restaurantId,
+  menuName,
+}) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [menu, setMenu] = useState<FullMenu | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        setLoading(true);
+        const menuData = await getFullMenu(restaurantId, menuName);
+        setMenu(menuData);
+      } catch (error) {
+        console.error("Failed to load full menu:", error);
+        setMenu(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchMenu();
+    }
+  }, [restaurantId, menuName, isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -47,33 +81,38 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, menu }) => {
           className="absolute right-4 top-4 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700"
           onClick={onClose}
         >
-          ✕
+          <img src={ChevronDownIcon} className="w-5 h-5" alt="Close" />
         </button>
 
-        {/* Handle */}
-        <div className="absolute left-1/2 -translate-x-1/2 top-2">
-          <div className="h-1 w-10 bg-gray-300 rounded-full" />
-        </div>
-
         {/* Content */}
-        <div className="p-4 pt-8">
-          <div className="flex items-start space-x-4">
-            {menu.thumbnailImage && (
+        <div className="p-4 h-full overflow-y-auto">
+          {loading ? (
+            <div className="text-center">กำลังโหลด...</div>
+          ) : menu === null ? (
+            <div className="text-center">ไม่พบข้อมูลเมนู</div>
+          ) : (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">{menu.name}</h2>
               <img
-                src={menu.thumbnailImage}
+                src={menu.largeImage}
                 alt={menu.name}
-                className="w-24 h-24 object-cover rounded-lg"
+                className="w-full h-48 object-cover rounded-lg mb-4"
               />
-            )}
-            <div className="flex-1">
-              <h2 className="text-xl font-medium mb-2">{menu.name}</h2>
-              <p className="text-gray-600 mb-1">ขายแล้ว {menu.sold} ชิ้น</p>
-              <p className="text-gray-600 mb-1">
-                เหลือ {menu.totalInStock} ชิ้น
-              </p>
-              <p className="text-lg font-medium">{menu.fullPrice} บาท</p>
+              <p className="text-gray-600 mb-2">ราคา: {menu.fullPrice} บาท</p>
+              {menu.options?.map((option, optionIndex) => (
+                <div key={optionIndex} className="mb-4">
+                  <h3 className="font-semibold text-lg mb-2">{option.label}</h3>
+                  <div className="pl-4">
+                    {option.choices?.map((choice, choiceIndex) => (
+                      <p key={choiceIndex} className="text-gray-600 mb-1">
+                        • {choice.label}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

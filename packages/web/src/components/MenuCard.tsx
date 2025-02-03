@@ -1,8 +1,17 @@
 import React, { useState } from "react";
 import MenuOverlay from "./MenuOverlay";
-import { MenuCardProps } from "../types";
+
+export interface MenuCardProps {
+  restaurantId: string;
+  thumbnailImage?: string;
+  name: string;
+  sold: number;
+  fullPrice: number;
+  totalInStock: number;
+}
 
 const MenuCard: React.FC<MenuCardProps> = ({
+  restaurantId,
   thumbnailImage,
   name,
   sold,
@@ -13,10 +22,8 @@ const MenuCard: React.FC<MenuCardProps> = ({
 
   const handleClick = () => {
     console.log("Clicked menu:", {
+      restaurantId,
       name,
-      fullPrice,
-      sold,
-      totalInStock,
     });
     setShowOverlay(true);
   };
@@ -43,13 +50,8 @@ const MenuCard: React.FC<MenuCardProps> = ({
       <MenuOverlay
         isOpen={showOverlay}
         onClose={() => setShowOverlay(false)}
-        menu={{
-          thumbnailImage,
-          name,
-          sold,
-          fullPrice,
-          totalInStock,
-        }}
+        restaurantId={restaurantId}
+        menuName={name}
       />
     </>
   );

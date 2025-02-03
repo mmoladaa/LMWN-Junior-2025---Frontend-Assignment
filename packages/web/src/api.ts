@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ShortMenu, Restaurant } from "./types";
+import { ShortMenu, Restaurant, FullMenu } from "./types";
 
 export const getRestaurant = async (
   restaurantId: string
@@ -26,6 +26,21 @@ export const getShortMenu = async (
     return response.data;
   } catch (error) {
     console.log("Menu API error:", error);
+    throw error;
+  }
+};
+
+export const getFullMenu = async (
+  restaurantId: string,
+  menuName: string
+): Promise<FullMenu> => {
+  try {
+    const response = await axios.get(
+      `http://localhost:3001/api/restaurants/${restaurantId}/menus/${menuName}/full`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Full menu API error:", error);
     throw error;
   }
 };
