@@ -4,7 +4,7 @@ import { getRestaurant, getShortMenu } from "./api";
 import Header from "./components/Header";
 import MenuList from "./components/MenuList";
 import { BrowserRouter as Router } from "react-router-dom";
-
+import Footer from "./components/Footer";
 function App() {
   const [imageUrl, setImageUrl] = useState("");
   const [restaurantName, setRestaurantName] = useState("");
@@ -50,6 +50,7 @@ function App() {
         openingHours={openingHours}
       />
       <MenuList menus={menus} shortMenus={shortMenus} />
+      <Footer />
     </Router>
   );
 }
