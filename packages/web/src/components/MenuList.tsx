@@ -16,7 +16,7 @@ const MenuList: React.FC<MenuListProps> = ({ menus, shortMenus }) => {
               key={index}
               thumbnailImage={shortMenus[index]?.thumbnailImage}
               name={menuName}
-              sold={shortMenus[index]?.sold || 0}
+              fullPrice={shortMenus[index]?.fullPrice || 0}
             />
           ))
         ) : (
