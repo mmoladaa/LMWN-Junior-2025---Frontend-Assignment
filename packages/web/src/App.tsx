@@ -1,37 +1,56 @@
 import React, { useEffect, useState } from "react";
 import "./index.css";
-import { getRestaurant } from "./api";
+import { getRestaurant, getShortMenu } from "./api";
 import Header from "./components/Header";
+import MenuList from "./components/MenuList";
+import { BrowserRouter as Router } from "react-router-dom";
 
 function App() {
   const [imageUrl, setImageUrl] = useState("");
   const [restaurantName, setRestaurantName] = useState("");
   const [activeStatus, setActiveStatus] = useState("");
   const [openingHours, setOpeningHours] = useState("");
+  const [menus, setMenus] = useState([]);
+  const [shortMenus, setShortMenus] = useState([]);
+  const restaurantId = "567051";
 
   useEffect(() => {
-    const fetchImage = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getRestaurant("567051");
-        setImageUrl(data.coverImage);
-        setRestaurantName(data.name);
-        setActiveStatus(data.activeStatus);
-        setOpeningHours(data.openingHours);
+        // ดึงข้อมูลร้านอาหาร
+        const restaurantData = await getRestaurant(restaurantId);
+        setImageUrl(restaurantData.coverImage);
+        setRestaurantName(restaurantData.name);
+        setActiveStatus(restaurantData.activeStatus);
+        setOpeningHours(restaurantData.openingHours);
+
+        const menuList = restaurantData.menus;
+        setMenus(menuList);
+
+        const shortMenuPromises = menuList.map((menuName) => {
+          return getShortMenu(restaurantId, menuName);
+        });
+
+        const shortMenuResults = await Promise.all(shortMenuPromises);
+        setShortMenus(shortMenuResults);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
-    fetchImage();
+    fetchData();
   }, []);
 
   return (
-    <Header
-      imageUrl={imageUrl}
-      restaurantName={restaurantName}
-      activeStatus={activeStatus}
-      openingHours={openingHours}
-    />
+    <Router>
+      <Header
+        imageUrl={imageUrl}
+        restaurantName={restaurantName}
+        activeStatus={activeStatus}
+        openingHours={openingHours}
+      />
+      <MenuList menus={menus} shortMenus={shortMenus} />
+    </Router>
   );
 }
 
