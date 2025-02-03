@@ -26,7 +26,6 @@ const MenuCard: React.FC<MenuCardProps> = ({
 }) => {
   const [showOverlay, setShowOverlay] = useState(false);
 
-  // คำนวณราคาหลังลด
   const discountedPrice =
     discountedPercent > 0
       ? Math.round((fullPrice * (100 - discountedPercent)) / 100)

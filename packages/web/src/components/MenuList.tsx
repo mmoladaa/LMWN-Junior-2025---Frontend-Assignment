@@ -33,7 +33,6 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
         let maxSold = -1;
         let currentTopSeller: ShortMenu | null = null;
 
-        // โหลดทุกเมนูพร้อมกัน แต่แสดงผลทันทีที่แต่ละเมนูโหลดเสร็จ
         const loadPromises = menus.map(async (menuId, index) => {
           try {
             const menuData = await getShortMenu(restaurantId, menuId);
@@ -46,7 +45,7 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
 
               setShortMenus((currentMenus) => {
                 const updatedMenus = [...currentMenus];
-                // อัพเดทเฉพาะเมนูที่ไม่ใช่ top seller
+
                 if (currentTopSeller?.name !== menuData.name) {
                   updatedMenus[index] = menuData;
                 }
@@ -56,7 +55,7 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
 
             setLoadedCount((prev) => {
               const newCount = prev + 1;
-              // อัพเดทสถานะ loading ตามจำนวนที่โหลดได้
+
               const loadedPercent = newCount / menus.length;
               if (loadedPercent >= 0.33) setLoadingTopSeller(false);
               if (loadedPercent >= 0.66) setLoadingDiscounted(false);
@@ -91,7 +90,6 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
 
     return (
       <div className="space-y-2">
-        {/* Top Seller Section */}
         {loadingTopSeller ? (
           <MenuCardSkeleton key="top-seller-skeleton" isTopSeller={true} />
         ) : (
@@ -110,7 +108,6 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
           )
         )}
 
-        {/* Discounted Section */}
         {discountedMenus.map(
           (menu, index) =>
             menu && (
@@ -128,7 +125,6 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
             )
         )}
 
-        {/* All Menus Section */}
         {shortMenus.map((menuData, index) => {
           if (!menuData && index >= loadedCount) {
             return <MenuCardSkeleton key={`skeleton-${index}`} />;

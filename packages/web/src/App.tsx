@@ -20,7 +20,7 @@ function RestaurantPage() {
     const loadData = async () => {
       try {
         if (restaurantId) {
-          setRestaurant(null); // Clear previous data
+          setRestaurant(null);
           const restaurantData = await getRestaurant(restaurantId);
           setRestaurant(restaurantData);
         }
@@ -30,6 +30,10 @@ function RestaurantPage() {
     };
     loadData();
   }, [restaurantId]);
+
+  useEffect(() => {
+    document.title = restaurant?.name || "Restaurant Menu";
+  }, [restaurant]);
 
   return (
     <>
