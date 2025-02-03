@@ -27,7 +27,12 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, menu }) => {
   return (
     <div className="contents">
       {/* Background */}
-      <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />
+      <div
+        className={`fixed inset-0 z-40 transition-colors duration-300 ${
+          isVisible ? "bg-black/50" : "bg-black/0"
+        }`}
+        onClick={onClose}
+      />
 
       {/* Card */}
       <div
@@ -37,6 +42,14 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose, menu }) => {
         onClick={(e) => e.stopPropagation()}
         onTransitionEnd={handleAnimationEnd}
       >
+        {/* Close Button */}
+        <button
+          className="absolute right-4 top-4 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700"
+          onClick={onClose}
+        >
+          ✕
+        </button>
+
         {/* Handle */}
         <div className="absolute left-1/2 -translate-x-1/2 top-2">
           <div className="h-1 w-10 bg-gray-300 rounded-full" />
