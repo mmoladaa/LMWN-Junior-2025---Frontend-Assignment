@@ -3,89 +3,73 @@ import MenuCard from "./MenuCard";
 import MenuCardSkeleton from "./MenuCardSkeleton";
 import { getShortMenu } from "../api";
 import { ShortMenu } from "../types";
-import { sortMenus } from "../utils/menuSorter";
 
 interface MenuListProps {
   restaurantId: string;
   menus: string[];
 }
 
-const BATCH_SIZE = 5; // จำนวนเมนูที่จะโหลดในแต่ละครั้ง
-
 const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
-  const [shortMenus, setShortMenus] = useState<(ShortMenu | null)[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadedCount, setLoadedCount] = useState(0);
-  const [topSellerMenuName, setTopSellerMenuName] = useState<string | null>(
-    null
+  const [shortMenus, setShortMenus] = useState<(ShortMenu | null)[]>(
+    new Array(menus.length).fill(null)
   );
+  const [topSellerMenu, setTopSellerMenu] = useState<ShortMenu | null>(null);
+  const [loadingTopSeller, setLoadingTopSeller] = useState(true);
+  const [loadingDiscounted, setLoadingDiscounted] = useState(true);
+  const [loadingAll, setLoadingAll] = useState(true);
+  const [loadedCount, setLoadedCount] = useState(0);
+  const BATCH_SIZE = 5;
 
   useEffect(() => {
     const loadMenus = async () => {
       try {
-        setLoading(true);
-        const loadedMenus: (ShortMenu | null)[] = new Array(menus.length).fill(
-          null
-        );
+        setLoadingTopSeller(true);
+        setLoadingDiscounted(true);
+        setLoadingAll(true);
+        setTopSellerMenu(null);
+        setShortMenus(new Array(menus.length).fill(null));
+        setLoadedCount(0);
+
         let maxSold = -1;
-        let topSeller = null;
+        let currentTopSeller: ShortMenu | null = null;
 
-        // โหลด 5 เมนูแรก
-        const initialBatch = menus.slice(0, BATCH_SIZE);
-        for (let i = 0; i < initialBatch.length; i++) {
+        // โหลดทุกเมนูพร้อมกัน แต่แสดงผลทันทีที่แต่ละเมนูโหลดเสร็จ
+        const loadPromises = menus.map(async (menuId, index) => {
           try {
-            const menuData = await getShortMenu(restaurantId, initialBatch[i]);
+            const menuData = await getShortMenu(restaurantId, menuId);
             if (menuData) {
-              menuData.isTopSeller = false; // เพิ่มฟิลด์ isTopSeller
               if (menuData.sold > maxSold) {
                 maxSold = menuData.sold;
-                topSeller = menuData.name;
+                currentTopSeller = { ...menuData, isTopSeller: true };
+                setTopSellerMenu(currentTopSeller);
               }
-            }
-            loadedMenus[i] = menuData;
-            setLoadedCount(i + 1);
-          } catch (error) {
-            console.error(`Failed to load menu ${initialBatch[i]}:`, error);
-            loadedMenus[i] = null;
-          }
-        }
 
-        // โหลดเมนูที่เหลือ
-        const remainingMenus = menus.slice(BATCH_SIZE);
-        for (let i = 0; i < remainingMenus.length; i++) {
-          try {
-            const menuData = await getShortMenu(
-              restaurantId,
-              remainingMenus[i]
-            );
-            if (menuData) {
-              menuData.isTopSeller = false;
-              if (menuData.sold > maxSold) {
-                maxSold = menuData.sold;
-                topSeller = menuData.name;
-              }
+              setShortMenus((currentMenus) => {
+                const updatedMenus = [...currentMenus];
+                // อัพเดทเฉพาะเมนูที่ไม่ใช่ top seller
+                if (currentTopSeller?.name !== menuData.name) {
+                  updatedMenus[index] = menuData;
+                }
+                return updatedMenus;
+              });
             }
-            loadedMenus[i + BATCH_SIZE] = menuData;
-            setLoadedCount(i + BATCH_SIZE + 1);
-          } catch (error) {
-            console.error(`Failed to load menu ${remainingMenus[i]}:`, error);
-            loadedMenus[i + BATCH_SIZE] = null;
-          }
-        }
 
-        // กำหนด isTopSeller ให้กับเมนูที่ขายดีที่สุด
-        const finalMenus = loadedMenus.map((menu) => {
-          if (menu && menu.name === topSeller) {
-            return { ...menu, isTopSeller: true };
+            setLoadedCount((prev) => {
+              const newCount = prev + 1;
+              // อัพเดทสถานะ loading ตามจำนวนที่โหลดได้
+              const loadedPercent = newCount / menus.length;
+              if (loadedPercent >= 0.33) setLoadingTopSeller(false);
+              if (loadedPercent >= 0.66) setLoadingDiscounted(false);
+              if (newCount === menus.length) setLoadingAll(false);
+              return newCount;
+            });
+          } catch (error) {
+            console.error(`Failed to load menu ${menuId}:`, error);
+            setLoadedCount((prev) => prev + 1);
           }
-          return menu;
         });
 
-        // เรียงลำดับเมนูและอัพเดท state
-        const sortedMenus = sortMenus(finalMenus);
-        setShortMenus(sortedMenus);
-        setTopSellerMenuName(topSeller);
-        setLoading(false);
+        await Promise.all(loadPromises);
       } catch (error) {
         console.error("Failed to load menus:", error);
       }
@@ -94,11 +78,87 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
     if (menus.length > 0) {
       loadMenus();
     } else {
-      setLoading(false);
+      setLoadingTopSeller(false);
+      setLoadingDiscounted(false);
+      setLoadingAll(false);
     }
   }, [restaurantId, menus]);
 
-  if (loading) {
+  const renderMenuGroups = () => {
+    const discountedMenus = shortMenus.filter(
+      (menu) => menu?.discountedPercent > 0
+    );
+
+    return (
+      <div className="space-y-2">
+        {/* Top Seller Section */}
+        {loadingTopSeller ? (
+          <MenuCardSkeleton key="top-seller-skeleton" isTopSeller={true} />
+        ) : (
+          topSellerMenu && (
+            <MenuCard
+              key={`top-${topSellerMenu.name}`}
+              restaurantId={restaurantId}
+              thumbnailImage={topSellerMenu.thumbnailImage}
+              name={topSellerMenu.name}
+              fullPrice={topSellerMenu.fullPrice}
+              sold={topSellerMenu.sold}
+              totalInStock={topSellerMenu.totalInStock}
+              isTopSeller={true}
+              discountedPercent={topSellerMenu.discountedPercent}
+            />
+          )
+        )}
+
+        {/* Discounted Section */}
+        {discountedMenus.map(
+          (menu, index) =>
+            menu && (
+              <MenuCard
+                key={`discount-${menu.name}-${index}`}
+                restaurantId={restaurantId}
+                thumbnailImage={menu.thumbnailImage}
+                name={menu.name}
+                fullPrice={menu.fullPrice}
+                sold={menu.sold}
+                totalInStock={menu.totalInStock}
+                isTopSeller={false}
+                discountedPercent={menu.discountedPercent}
+              />
+            )
+        )}
+
+        {/* All Menus Section */}
+        {shortMenus.map((menuData, index) => {
+          if (!menuData && index >= loadedCount) {
+            return <MenuCardSkeleton key={`skeleton-${index}`} />;
+          }
+
+          if (menuData?.discountedPercent > 0 || menuData?.isTopSeller) {
+            return null;
+          }
+
+          return (
+            menuData && (
+              <MenuCard
+                key={`regular-${menuData.name}-${index}`}
+                restaurantId={restaurantId}
+                thumbnailImage={menuData.thumbnailImage}
+                name={menuData.name}
+                fullPrice={menuData.fullPrice}
+                sold={menuData.sold}
+                totalInStock={menuData.totalInStock}
+                isTopSeller={false}
+                discountedPercent={menuData.discountedPercent}
+              />
+            )
+          );
+        })}
+      </div>
+    );
+  };
+
+  if (loadingTopSeller && loadingDiscounted && loadingAll) {
     return (
       <div className="max-w-2xl mx-auto p-4">
         <div className="space-y-2">
@@ -133,33 +193,7 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
     );
   }
 
-  return (
-    <div className="max-w-2xl mx-auto p-4">
-      <div className="space-y-2">
-        {menus.map((menuName, index) => {
-          const menuData = shortMenus[index];
-
-          if (!menuData && index >= loadedCount) {
-            return <MenuCardSkeleton key={`skeleton-${index}`} />;
-          }
-
-          return (
-            <MenuCard
-              key={`${index}-${menuName}`}
-              restaurantId={restaurantId}
-              thumbnailImage={menuData?.thumbnailImage}
-              name={menuData?.name || menuName}
-              fullPrice={menuData?.fullPrice || 0}
-              sold={menuData?.sold || 0}
-              totalInStock={menuData?.totalInStock || 0}
-              isTopSeller={menuData?.name === topSellerMenuName}
-              discountedPercent={menuData?.discountedPercent || 0}
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
+  return <div className="max-w-2xl mx-auto p-4">{renderMenuGroups()}</div>;
 };
 
 export default MenuList;

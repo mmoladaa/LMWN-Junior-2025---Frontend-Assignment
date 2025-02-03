@@ -68,6 +68,7 @@ const MenuCard: React.FC<MenuCardProps> = ({
               <span className="font-medium">{fullPrice}</span>
             )}
             <span>บาท</span>
+            {totalInStock === 0 && <span className="text-gray-500">(หมด)</span>}
           </div>
         </div>
       </div>

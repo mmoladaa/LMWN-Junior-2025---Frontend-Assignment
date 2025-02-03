@@ -3,30 +3,36 @@ import "./index.css";
 import { getRestaurant } from "./api";
 import Header from "./components/Header";
 import MenuList from "./components/MenuList";
-import { BrowserRouter as Router } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useParams,
+} from "react-router-dom";
 import Footer from "./components/Footer";
 import { Restaurant } from "./types";
 
-function App() {
-  const restaurantId = "227018";
-  // 567051
+function RestaurantPage() {
+  const { restaurantId } = useParams();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const restaurantData = await getRestaurant(restaurantId);
-        setRestaurant(restaurantData);
+        if (restaurantId) {
+          setRestaurant(null); // Clear previous data
+          const restaurantData = await getRestaurant(restaurantId);
+          setRestaurant(restaurantData);
+        }
       } catch (error) {
         console.error("Failed to load data:", error);
       }
     };
     loadData();
-  }, []);
+  }, [restaurantId]);
 
   return (
-    <Router>
-      {/* Header */}
+    <>
       {restaurant && (
         <Header
           imageUrl={restaurant.coverImage}
@@ -34,16 +40,22 @@ function App() {
           activeTimePeriod={restaurant.activeTimePeriod}
         />
       )}
-
-      {/* Menu List */}
       <MenuList
-        restaurantId={restaurantId}
+        restaurantId={restaurantId || ""}
         menus={restaurant?.menus || []}
         shortMenus={restaurant?.shortMenus || []}
       />
-
-      {/* Footer */}
       <Footer />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/restaurants/:restaurantId" element={<RestaurantPage />} />
+      </Routes>
     </Router>
   );
 }
