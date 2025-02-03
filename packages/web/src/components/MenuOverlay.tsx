@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { FullMenu, getFullMenu } from "../api";
 import ChevronDownIcon from "../assets/icons/chevron-down-solid.svg";
+import DefaultFoodImage from "../assets/images/default-food-modal.png";
+import { sortMenus } from "../utils/menuSorter";
 
 export interface MenuOverlayProps {
   isOpen: boolean;
   onClose: () => void;
   restaurantId: string;
   menuName: string[];
+  isTopSeller: boolean;
+  discountedPercent?: number;
 }
 
 const MenuOverlay: React.FC<MenuOverlayProps> = ({
@@ -14,6 +18,8 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
   onClose,
   restaurantId,
   menuName,
+  isTopSeller,
+  discountedPercent = 0,
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -56,6 +62,12 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
     }
   };
 
+  // คำนวณราคาหลังลด
+  const discountedPrice =
+    menu && discountedPercent > 0
+      ? Math.round((menu.fullPrice * (100 - discountedPercent)) / 100)
+      : menu?.fullPrice;
+
   if (!isOpen && !isAnimating) return null;
 
   return (
@@ -91,32 +103,61 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
               <div className="animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-gray-500"></div>
             </div>
           ) : menu === null ? (
-            <div className="px-8 pt-20 text-center text-gray-500">
-              ไม่พบข้อมูลเมนู
-            </div>
+            <div className="text-center">ไม่พบข้อมูลเมนู</div>
           ) : (
             <div>
-              <h2 className="text-2xl font-bold mt-4 mb-4 text-center">
+              <h2 className="text-2xl font-bold mb-4 text-center">
                 {menu.name}
               </h2>
-              <img
-                src={menu.largeImage}
-                alt={menu.name}
-                className="w-full h-56 md:h-72 object-cover"
-              />
-              <p className="text-gray-600 mb-2">ราคา: {menu.fullPrice} บาท</p>
-              {menu.options?.map((option, optionIndex) => (
-                <div key={optionIndex} className="mb-4">
-                  <h3 className="font-semibold text-lg mb-2">{option.label}</h3>
-                  <div className="pl-4">
-                    {option.choices?.map((choice, choiceIndex) => (
-                      <p key={choiceIndex} className="text-gray-600 mb-1">
-                        • {choice.label}
-                      </p>
-                    ))}
-                  </div>
+              <div className="relative">
+                <img
+                  src={menu.largeImage || DefaultFoodImage}
+                  alt={menu.name}
+                  className="w-full h-20 md:h-48 object-cover rounded-lg mb-4"
+                />
+              </div>
+              <div className="px-8">
+                <div className="flex items-center mb-2">
+                  <p className="text-gray-600">
+                    ราคา:{" "}
+                    {discountedPercent > 0 ? (
+                      <>
+                        <span className="line-through text-gray-400">
+                          {menu?.fullPrice}
+                        </span>
+                        <span className="ml-2 text-red-500">
+                          {discountedPrice}
+                        </span>
+                      </>
+                    ) : (
+                      menu?.fullPrice
+                    )}{" "}
+                    บาท
+                  </p>
+                  {isTopSeller && (
+                    <span className="ml-2 text-sm text-orange-500">
+                      ยอดขายดีที่สุดในร้าน
+                    </span>
+                  )}
                 </div>
-              ))}
+                <p className="text-gray-600 mb-4">
+                  คงเหลือ: {menu.totalInStock} ชิ้น
+                </p>
+                {menu.options?.map((option, optionIndex) => (
+                  <div key={optionIndex} className="mb-4">
+                    <h3 className="font-semibold text-lg mb-2">
+                      {option.label}
+                    </h3>
+                    <div className="pl-4">
+                      {option.choices?.map((choice, choiceIndex) => (
+                        <p key={choiceIndex} className="text-gray-600 mb-1">
+                          • {choice.label}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

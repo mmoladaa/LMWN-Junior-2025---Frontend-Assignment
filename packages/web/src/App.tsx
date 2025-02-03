@@ -8,7 +8,8 @@ import Footer from "./components/Footer";
 import { Restaurant } from "./types";
 
 function App() {
-  const restaurantId = "567051";
+  const restaurantId = "227018";
+  // 567051
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
 
   useEffect(() => {

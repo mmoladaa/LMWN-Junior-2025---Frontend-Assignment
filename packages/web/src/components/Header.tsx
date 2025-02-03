@@ -1,20 +1,5 @@
 import React from "react";
-
-// Helper function สำหรับคำนวณสถานะร้าน
-const calculateActiveStatus = (open: string, close: string): boolean => {
-  const now = new Date();
-  const currentHour = now.getHours();
-  const currentMinute = now.getMinutes();
-
-  const [openHour, openMinute] = open.split(":").map(Number);
-  const [closeHour, closeMinute] = close.split(":").map(Number);
-
-  const currentTotal = currentHour * 60 + currentMinute;
-  const openTotal = openHour * 60 + openMinute;
-  const closeTotal = closeHour * 60 + closeMinute;
-
-  return currentTotal >= openTotal && currentTotal <= closeTotal;
-};
+import { calculateActiveStatus } from "../utils/timeUtils";
 
 interface HeaderProps {
   imageUrl: string;
@@ -32,21 +17,27 @@ function Header({ imageUrl, restaurantName, activeTimePeriod }: HeaderProps) {
   );
 
   return (
-    <div>
-      <img
-        src={imageUrl}
-        alt="restaurant cover"
-        className="w-full h-[240px] object-cover"
-      />
-      <div>
-        <h1>{restaurantName}</h1>
-        <div>
-          <div>
-            <span></span>
-            <span>{isActive ? "เปิด" : "ปิด"}</span>
-          </div>
-          <span>
-            {activeTimePeriod.open} - {activeTimePeriod.close}
+    <div className="relative">
+      <div className="w-full h-[240px] bg-gray-100 overflow-hidden">
+        <img
+          src={imageUrl}
+          alt="restaurant cover"
+          className="w-full h-full object-cover"
+          style={{ objectPosition: "center center" }}
+        />
+      </div>
+      <div className="max-w-2xl mx-auto p-2">
+        <h1 className="text-xl font-bold mb-2">{restaurantName}</h1>
+        <div className="flex items-center space-x-4 text-sm">
+          <span
+            className={`px-2 py-1 rounded-md text-white ${
+              isActive ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {isActive ? "เปิด" : "ปิด"}
+          </span>
+          <span className="text-gray-600">
+            {activeTimePeriod.open} - {activeTimePeriod.close} น.
           </span>
         </div>
       </div>

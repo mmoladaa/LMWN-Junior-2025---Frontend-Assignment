@@ -3,6 +3,7 @@ import MenuCard from "./MenuCard";
 import MenuCardSkeleton from "./MenuCardSkeleton";
 import { getShortMenu } from "../api";
 import { ShortMenu } from "../types";
+import { sortMenus } from "../utils/menuSorter";
 
 interface MenuListProps {
   restaurantId: string;
@@ -15,6 +16,9 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
   const [shortMenus, setShortMenus] = useState<(ShortMenu | null)[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadedCount, setLoadedCount] = useState(0);
+  const [topSellerMenuName, setTopSellerMenuName] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     const loadMenus = async () => {
@@ -23,22 +27,28 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
         const loadedMenus: (ShortMenu | null)[] = new Array(menus.length).fill(
           null
         );
+        let maxSold = -1;
+        let topSeller = null;
 
         // โหลด 5 เมนูแรก
         const initialBatch = menus.slice(0, BATCH_SIZE);
         for (let i = 0; i < initialBatch.length; i++) {
           try {
             const menuData = await getShortMenu(restaurantId, initialBatch[i]);
+            if (menuData) {
+              menuData.isTopSeller = false; // เพิ่มฟิลด์ isTopSeller
+              if (menuData.sold > maxSold) {
+                maxSold = menuData.sold;
+                topSeller = menuData.name;
+              }
+            }
             loadedMenus[i] = menuData;
-            setShortMenus([...loadedMenus]);
             setLoadedCount(i + 1);
           } catch (error) {
             console.error(`Failed to load menu ${initialBatch[i]}:`, error);
             loadedMenus[i] = null;
           }
         }
-
-        setLoading(false);
 
         // โหลดเมนูที่เหลือ
         const remainingMenus = menus.slice(BATCH_SIZE);
@@ -48,14 +58,34 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
               restaurantId,
               remainingMenus[i]
             );
+            if (menuData) {
+              menuData.isTopSeller = false;
+              if (menuData.sold > maxSold) {
+                maxSold = menuData.sold;
+                topSeller = menuData.name;
+              }
+            }
             loadedMenus[i + BATCH_SIZE] = menuData;
-            setShortMenus([...loadedMenus]);
             setLoadedCount(i + BATCH_SIZE + 1);
           } catch (error) {
             console.error(`Failed to load menu ${remainingMenus[i]}:`, error);
             loadedMenus[i + BATCH_SIZE] = null;
           }
         }
+
+        // กำหนด isTopSeller ให้กับเมนูที่ขายดีที่สุด
+        const finalMenus = loadedMenus.map((menu) => {
+          if (menu && menu.name === topSeller) {
+            return { ...menu, isTopSeller: true };
+          }
+          return menu;
+        });
+
+        // เรียงลำดับเมนูและอัพเดท state
+        const sortedMenus = sortMenus(finalMenus);
+        setShortMenus(sortedMenus);
+        setTopSellerMenuName(topSeller);
+        setLoading(false);
       } catch (error) {
         console.error("Failed to load menus:", error);
       }
@@ -68,20 +98,39 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
     }
   }, [restaurantId, menus]);
 
-  if (loading && loadedCount === 0) {
+  if (loading) {
     return (
       <div className="max-w-2xl mx-auto p-4">
         <div className="space-y-2">
           {[...Array(5)].map((_, index) => (
-            <MenuCardSkeleton key={index} />
+            <MenuCardSkeleton key={`initial-skeleton-${index}`} />
           ))}
         </div>
       </div>
     );
   }
 
-  if (shortMenus.every((menu) => menu === null)) {
-    return <div className="p-4 text-center">ไม่พบเมนู</div>;
+  if (menus.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto p-4">
+        <div className="text-center py-8 text-gray-500">
+          <p className="text-lg mb-2">ไม่พบเมนูในร้านนี้</p>
+          <p className="text-sm">โปรดลองใหม่อีกครั้งในภายหลัง</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (shortMenus.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto p-4">
+        <div className="text-center py-8 text-gray-500">
+          <div className="animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-gray-500 mx-auto mb-4"></div>
+          <p className="text-lg">กำลังโหลดเมนู...</p>
+          <p className="text-sm mt-2">อาจใช้เวลาสักครู่</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -90,7 +139,6 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
         {menus.map((menuName, index) => {
           const menuData = shortMenus[index];
 
-          // ถ้ายังไม่มีข้อมูลและเลยจำนวนที่โหลดมาแล้ว แสดง skeleton
           if (!menuData && index >= loadedCount) {
             return <MenuCardSkeleton key={`skeleton-${index}`} />;
           }
@@ -104,6 +152,8 @@ const MenuList: React.FC<MenuListProps> = ({ restaurantId, menus }) => {
               fullPrice={menuData?.fullPrice || 0}
               sold={menuData?.sold || 0}
               totalInStock={menuData?.totalInStock || 0}
+              isTopSeller={menuData?.name === topSellerMenuName}
+              discountedPercent={menuData?.discountedPercent || 0}
             />
           );
         })}
