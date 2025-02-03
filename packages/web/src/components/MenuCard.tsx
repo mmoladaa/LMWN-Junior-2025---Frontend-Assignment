@@ -38,7 +38,7 @@ const MenuCard: React.FC<MenuCardProps> = ({
         className="flex items-center p-2 bg-white cursor-pointer hover:bg-gray-50"
         onClick={() => setShowOverlay(true)}
       >
-        <div className="relative w-24 h-24">
+        <div className="relative w-24 h-24 flex-shrink-0">
           <img
             src={thumbnailImage || DefaultFoodImage}
             alt={name}
@@ -50,24 +50,25 @@ const MenuCard: React.FC<MenuCardProps> = ({
             </div>
           )}
         </div>
-        <div className="ml-3 flex-1">
-          <h3 className="font-medium">{name}</h3>
-          <p className="text-gray-700">
+        <div className="ml-3 flex-1 overflow-hidden">
+          <div className="pr-8">
+            <h3 className="font-medium break-words">{name}</h3>
+          </div>
+          <div className="text-gray-700 text-lg flex flex-wrap items-center gap-2">
             {discountedPercent > 0 ? (
               <>
-                <span className="line-through text-gray-400">{fullPrice}</span>
-                <span className="ml-2 text-red-500">{discountedPrice}</span>
+                <span className="line-through text-gray-400 text-base">
+                  {fullPrice}
+                </span>
+                <span className="text-red-500 font-medium">
+                  {discountedPrice}
+                </span>
               </>
             ) : (
-              fullPrice
-            )}{" "}
-            บาท
-            {isTopSeller && (
-              <span className="ml-2 text-sm text-orange-500">
-                ยอดขายดีที่สุดในร้าน
-              </span>
+              <span className="font-medium">{fullPrice}</span>
             )}
-          </p>
+            <span>บาท</span>
+          </div>
         </div>
       </div>
 
