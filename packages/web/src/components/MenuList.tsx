@@ -8,8 +8,8 @@ interface MenuListProps {
 
 const MenuList: React.FC<MenuListProps> = ({ menus, shortMenus }) => {
   return (
-    <div className="p-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="max-w-2xl mx-auto">
+      <div>
         {Array.isArray(menus) && menus.length > 0 ? (
           menus.map((menuName, index) => (
             <MenuCard
@@ -20,7 +20,7 @@ const MenuList: React.FC<MenuListProps> = ({ menus, shortMenus }) => {
             />
           ))
         ) : (
-          <div>No menus available</div>
+          <div> No menus available </div>
         )}
       </div>
     </div>

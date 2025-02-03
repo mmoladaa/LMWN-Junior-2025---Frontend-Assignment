@@ -8,17 +8,17 @@ interface MenuCardProps {
 
 const MenuCard: React.FC<MenuCardProps> = ({ thumbnailImage, name, sold }) => {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center p-2 bg-white">
       {thumbnailImage && (
         <img
           src={thumbnailImage}
           alt={name}
-          className="w-24 h-24 object-cover rounded-lg"
+          className="w-20 h-20 object-cover rounded-lg"
         />
       )}
-      <div className="ml-4">
-        <h3 className="font-medium text-lg">{name}</h3>
-        <p>{sold || 0} บาท</p>
+      <div className="ml-4 flex-1">
+        <h3 className="font-medium text-base">{name}</h3>
+        <p className="text-gray-600 text-sm">{sold} บาท</p>
       </div>
     </div>
   );
