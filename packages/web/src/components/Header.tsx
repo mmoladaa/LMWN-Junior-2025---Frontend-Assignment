@@ -1,19 +1,10 @@
-import React from "react";
 import { calculateActiveStatus } from "../utils/timeUtils";
-
-interface HeaderProps {
-  imageUrl: string;
-  restaurantName: string;
-  activeTimePeriod: {
-    open: string;
-    close: string;
-  };
-}
+import { HeaderProps } from "../types";
 
 function Header({ imageUrl, restaurantName, activeTimePeriod }: HeaderProps) {
   const isActive = calculateActiveStatus(
-    activeTimePeriod.open,
-    activeTimePeriod.close
+    activeTimePeriod?.open,
+    activeTimePeriod?.close
   );
 
   return (
@@ -36,9 +27,11 @@ function Header({ imageUrl, restaurantName, activeTimePeriod }: HeaderProps) {
           >
             {isActive ? "เปิด" : "ปิด"}
           </span>
-          <span className="text-gray-600">
-            {activeTimePeriod.open} - {activeTimePeriod.close} น.
-          </span>
+          {activeTimePeriod && (
+            <span className="text-gray-600">
+              {activeTimePeriod.open} - {activeTimePeriod.close} น.
+            </span>
+          )}
         </div>
       </div>
     </div>

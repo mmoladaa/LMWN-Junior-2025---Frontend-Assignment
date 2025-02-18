@@ -36,14 +36,14 @@
 }
 ```
 
-| ชื่อ field | คำอธิบาย |
-| ------ | ------ |
-| name | ชื่อร้านอาหาร |
-| id | id ของร้าน |
-| coverImage | รูปปกของร้าน |
-| menus | ชื่อเมนูทั้งหมดที่ร้านมี |
-| activeTimePeriod.open | เวลาร้านเปิด |
-| activeTimePeriod.close | เวลาร้านปิด |
+| ชื่อ field             | คำอธิบาย                 |
+| ---------------------- | ------------------------ |
+| name                   | ชื่อร้านอาหาร            |
+| id                     | id ของร้าน               |
+| coverImage             | รูปปกของร้าน             |
+| menus                  | ชื่อเมนูทั้งหมดที่ร้านมี |
+| activeTimePeriod.open  | เวลาร้านเปิด             |
+| activeTimePeriod.close | เวลาร้านปิด              |
 
 - Short Menu `https://us-central1-wongnai-frontend-assignment.cloudfunctions.net/api/restaurants/:restaurantId/menus/:menuName/short.json`
 
@@ -63,17 +63,17 @@
 }
 ```
 
-| ชื่อ field | คำอธิบาย |
-| ------ | ------ |
-| name | ชื่อเมนู |
-| id | id ของเมนู |
-| thumbnailImage | รูปปกเมนู |
-| fullPrice | ราคาเต็ม |
-| discountedPercent | เปอร์เซ็นที่ลดราคาจากราคาเต็ม |
-| discountedTimePeriod.begin | ช่วงเวลาที่เริ่มลดราคา |
-| discountedTimePeriod.end | ช่วงเวลาที่จบลดราคา |
-| sold | จำนวนที่ขายออก |
-| totalInStock | จำนวนคงเหลือในร้าน |
+| ชื่อ field                 | คำอธิบาย                      |
+| -------------------------- | ----------------------------- |
+| name                       | ชื่อเมนู                      |
+| id                         | id ของเมนู                    |
+| thumbnailImage             | รูปปกเมนู                     |
+| fullPrice                  | ราคาเต็ม                      |
+| discountedPercent          | เปอร์เซ็นที่ลดราคาจากราคาเต็ม |
+| discountedTimePeriod.begin | ช่วงเวลาที่เริ่มลดราคา        |
+| discountedTimePeriod.end   | ช่วงเวลาที่จบลดราคา           |
+| sold                       | จำนวนที่ขายออก                |
+| totalInStock               | จำนวนคงเหลือในร้าน            |
 
 - Full Menu `https://us-central1-wongnai-frontend-assignment.cloudfunctions.net/api/restaurants/:restaurantId/menus/:menuName/full.json`
 
@@ -100,20 +100,20 @@
 }
 ```
 
-| ชื่อ field | คำอธิบาย |
-| ------ | ------ |
-| name | ชื่อเมนู |
-| id | id ของเมนู |
-| thumbnailImage | รูปปกเมนู |
-| fullPrice | ราคาเต็ม |
-| discountedPercent | เปอร์เซ็นที่ลดราคาจากราคาเต็ม |
-| discountedTimePeriod.begin | ช่วงเวลาที่เริ่มลดราคา |
-| discountedTimePeriod.end | ช่วงเวลาที่จบลดราคา |
-| sold | จำนวนที่ขายออก |
-| totalInStock | จำนวนคงเหลือในร้าน |
-| largeImage | รูปเมนูขนาดใหญ่ |
-| options[].label | ชื่อของหัวข้อการปรับแต่งเมนู เช่น เลือกเนื้อสัตว์, เลือกไข่ |
-| options[].choices[].label | ชื่อของตัวเลือกสำหรับการปรับแต่งเมนูของหัวข้อนั้น เช่น หมู, ไก่ |
+| ชื่อ field                 | คำอธิบาย                                                        |
+| -------------------------- | --------------------------------------------------------------- |
+| name                       | ชื่อเมนู                                                        |
+| id                         | id ของเมนู                                                      |
+| thumbnailImage             | รูปปกเมนู                                                       |
+| fullPrice                  | ราคาเต็ม                                                        |
+| discountedPercent          | เปอร์เซ็นที่ลดราคาจากราคาเต็ม                                   |
+| discountedTimePeriod.begin | ช่วงเวลาที่เริ่มลดราคา                                          |
+| discountedTimePeriod.end   | ช่วงเวลาที่จบลดราคา                                             |
+| sold                       | จำนวนที่ขายออก                                                  |
+| totalInStock               | จำนวนคงเหลือในร้าน                                              |
+| largeImage                 | รูปเมนูขนาดใหญ่                                                 |
+| options[].label            | ชื่อของหัวข้อการปรับแต่งเมนู เช่น เลือกเนื้อสัตว์, เลือกไข่     |
+| options[].choices[].label  | ชื่อของตัวเลือกสำหรับการปรับแต่งเมนูของหัวข้อนั้น เช่น หมู, ไก่ |
 
 ซึ่งเราได้เตรียม API Server สำหรับทดสอบ API-Gateway ว่าสามารถใช้งานได้ไหมอยู่ที่ https://us-central1-wongnai-frontend-assignment.cloudfunctions.net/api
 
@@ -165,17 +165,19 @@
 - [ ] Good Developer Experience โค้ดที่เขียนมาสามารถนำไปพัฒนาต่อได้ยากไหม
 - [ ] ประสิทธิภาพการทำงานของ website
 - [ ] Website มี UX/UI ที่ดี user สามารถใช้งาน website ได้อย่างลื่นไหล
- 
-###  Run project
+
+### Run project
 
 เราได้ทำการสร้างโปรเจคเริ่มต้นทั้ง api-gateway และ web ไว้ให้แล้ว ผู้ทำแบบทดสอบจะต้อง develop api-gateway และ web ตาม task ทั้งหมดที่ได้กล่าวมาข้างต้น โดยท้ายที่สุด script ดังต่อไปนี้จะต้องสามารถ run ทั้งสอง project พร้อมกันได้ที่ root folder อย่างถูกต้อง
 
 1. install all dependencies
+
 ```
 yarn
 ```
 
 2. run web and api-gateway in parallel
+
 ```
 npx lerna run dev --parallel
 ```
@@ -183,4 +185,3 @@ npx lerna run dev --parallel
 ### Assignment Period
 
 สำหรับแบบทดสอบนี้มีระยะเวลาในการทำทั้งสิ้น 4 วัน นับจากวันที่ผู้สมัครได้รับแบบทดสอบผ่านทางอีเมล
-

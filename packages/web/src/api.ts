@@ -44,3 +44,45 @@ export const getFullMenu = async (
     throw error;
   }
 };
+
+export const getAllShortMenus = async (
+  restaurantId: string
+): Promise<ShortMenu[]> => {
+  try {
+    const response = await axios.get(
+      `http://localhost:3001/api/restaurants/${restaurantId}/menus/allshort`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("All short menus API error:", error);
+    throw error;
+  }
+};
+
+export const getMenusDiscounted = async (
+  restaurantId: string
+): Promise<ShortMenu[]> => {
+  try {
+    const response = await axios.get(
+      `http://localhost:3001/api/restaurants/${restaurantId}/menus/discounted`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Discounted menu API error:", error);
+    throw error;
+  }
+};
+
+export const getMenusMaxSold = async (
+  restaurantId: string
+): Promise<ShortMenu[]> => {
+  try {
+    const response = await axios.get(
+      `http://localhost:3001/api/restaurants/${restaurantId}/menus/maxsold`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Max sold menu API error:", error);
+    throw error;
+  }
+};

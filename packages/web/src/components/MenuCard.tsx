@@ -2,17 +2,7 @@ import React, { useState } from "react";
 import MenuOverlay from "./MenuOverlay";
 import FireIcon from "../assets/icons/fire-solid.svg";
 import DefaultFoodImage from "../assets/images/default-food.png";
-
-export interface MenuCardProps {
-  restaurantId: string;
-  thumbnailImage?: string;
-  name: string;
-  sold: number;
-  fullPrice: number;
-  totalInStock: number;
-  isTopSeller?: boolean;
-  discountedPercent?: number;
-}
+import { MenuCardProps } from "../types";
 
 const MenuCard: React.FC<MenuCardProps> = ({
   restaurantId,
@@ -22,7 +12,7 @@ const MenuCard: React.FC<MenuCardProps> = ({
   fullPrice,
   totalInStock,
   isTopSeller = false,
-  discountedPercent = 0,
+  discountedPercent,
 }) => {
   const [showOverlay, setShowOverlay] = useState(false);
 

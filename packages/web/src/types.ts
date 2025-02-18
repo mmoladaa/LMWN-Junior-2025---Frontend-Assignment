@@ -11,37 +11,18 @@ export interface Restaurant {
 
 export interface ShortMenu {
   name: string;
-  id: string;
+  id: number;
   thumbnailImage: string;
   discountedPercent: number;
   fullPrice: number;
   sold: number;
   totalInStock: number;
-}
-
-export interface MenuCardProps {
-  thumbnailImage?: string;
-  name: string;
-  sold: number;
-  fullPrice: number;
-  totalInStock: number;
-}
-
-export interface MenuOverlayProps {
-  isOpen: boolean;
-  onClose: () => void;
-  menu: {
-    thumbnailImage?: string;
-    name: string;
-    sold: number;
-    fullPrice: number;
-    totalInStock: number;
-  };
+  isTopSeller?: boolean;
 }
 
 export interface FullMenu {
   name: string;
-  id: string;
+  id: number;
   thumbnailImage: string;
   discountedPercent: number;
   sold: number;
@@ -54,4 +35,28 @@ export interface FullMenu {
     }[];
   }[];
   largeImage: string;
+}
+
+export interface HeaderProps {
+  imageUrl: string;
+  restaurantName: string;
+  activeTimePeriod: {
+    open: string;
+    close: string;
+  };
+}
+
+export interface MenuCardProps {
+  restaurantId: number;
+  thumbnailImage?: string;
+  name: string;
+  sold: number;
+  fullPrice: number;
+  totalInStock: number;
+  isTopSeller?: boolean;
+  discountedPercent: number;
+}
+
+export interface MenuListProps {
+  restaurantId: string;
 }
